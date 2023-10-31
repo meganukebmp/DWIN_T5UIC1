@@ -30,6 +30,7 @@ The T5UIC1 is a UART based screen based on the DWIN T5 CPU. The T5UIC1 only has 
 
 ## 2 UART instruction set
 The device has a configurable baud-rate. The baud-rate is configured through the SD card config file `T5UIC1.CFG`.
+
 The serial port is always in **8N1** mode.
 
 ### 2.1 Color format
@@ -41,10 +42,12 @@ All colors are in the 16 bit **RGB565** format.
 
 ### 2.2 Coordinate system
 Coordinate system is controlled by the rotation parameter in the SD card config file `T5UIC1.CFG`
+
 ![Coordinate system](coordinates.png)
 
 ### 2.3 Serial data frame
 A single data frame to the display consists of a frame header, instruction, data, CRC (optional) and footer.
+
 The data frame is as such:
 | Header | Instruction        | Data                    | CRC (optional) | Footer              |
 |--------|--------------------|-------------------------|----------------|---------------------|
@@ -52,6 +55,7 @@ The data frame is as such:
 
 ### 2.4 CRC
 CRC can be enabled in the SD card config file `T5UIC1.CFG`. The CRC is a CRC-16/MODBUS.
+
 If any instruction fails the CRC check the device will the following error:
 
 | Instruction | Data |
@@ -82,18 +86,21 @@ Check if the device is online. If it is online it will respond to this command.
 
 #### `0x30` - Backlight brightness
 Set device backlight brightness.
+
 **Transmit:**
 | Instruction | Data (1 byte) |
 |-------------|------|
 | `0x30`      | [1B] **BRIGHTNESS** |
 
 **BRIGHTNESS:** 1 byte
+
 \- `0x00` to `0xFF` -  The brightness value. A value of `0x00` turn's the backlight off.
 
 ---
 
 #### `0x31` - Write data to memory
 Write user data to the 32KB of SRAM or 16KB Flash memory.
+
 **Transmit:**
 | Instruction | Data (4 to 248 bytes) |
 |-------------|------|
@@ -105,21 +112,27 @@ Write user data to the 32KB of SRAM or 16KB Flash memory.
 | `0x31`      |`0xA5 0x4F 0x4B` - "¥OK"|
 
 **MEM_TYPE:** 1 byte.
+
 \- `0x5A` for the 32KB of SRAM. 
+
 \- `0xA5` for the 16KB of Flash.
 
 **ADDRESS:** 2 bytes.
 \- `0x0000` to `0x7FFF` for the 32KB of SRAM.
+
 \- `0x0000` to `0x3FFF` for the 16KB of Flash.
+
 Writing outside of these ranges can lead to corruption!
 
 **DATA:** n bytes (up to a maximum of 245)
+
 \- The data to be written to that offset.
 
 ---
 
 #### `0x32` - Read data from memory
 Read user data from the 32KB of SRAM or 16KB Flash memory.
+
 **Transmit:**
 | Instruction | Data (4 bytes) |
 |-------------|------|
@@ -131,26 +144,35 @@ Read user data from the 32KB of SRAM or 16KB Flash memory.
 | `0x32`      |[1B] **MEM_TYPE**; [2B] **ADDRESS**; [1B] **LENGTH**; [nB] **DATA**|
 
 **MEM_TYPE:** 1 byte.
+
 \- `0x5A` for the 32KB of SRAM. 
+
 \- `0xA5` for the 16KB of Flash.
 
 **ADDRESS:** 2 bytes.
+
 \- `0x0000` to `0x7FFF` for the 32KB of SRAM.
+
 \- `0x0000` to `0x3FFF` for the 16KB of Flash.
+
 Reading outside of these ranges can lead to corruption!
 
+
 **LENGTH:** 1 byte.
+
 \- `0x01` to `0xF0` - Amount of bytes to read.
+
 Reading lengths outside of this range is unsupported!
 
+
 **DATA:** n bytes (up to a maximum of 240)
+
 \- The data to be read from that offset.
 
 ---
 
 #### `0x33` - Save image from SRAM to persistent image memory bank
-Save the data currently in the 32KB of SRAM to a specified persistent image memory bank.
-Used to, for example, modify an icon or background image persistently during runtime.
+Save the data currently in the 32KB of SRAM to a specified persistent image memory bank. Used to, for example, modify an icon or background image persistently during runtime.
 
 **To successfully use this command an image must be written to SRAM with index `0x000` first!**
 
@@ -165,7 +187,9 @@ Used to, for example, modify an icon or background image persistently during run
 | `0x33`      |`0x4F 0x4B` - "OK"|
 
 **MEMORY_BANK:** 1 byte.
+
 \- `0x00` to `0x0F` - The 32KB memory bank.
+
 Writing to memory banks outside of this range is unsupported and can lead to corruption!
 
 ---
@@ -184,9 +208,13 @@ Changes the display rotation immediately. This affects drawing command origin an
 | `0x34`      |`0x4F 0x4B` - "OK"|
 
 **ROTATION:** 1 byte.
+
 \- `0x00` - 0 degrees
+
 \- `0x01` - 90 degrees
+
 \- `0x02` - 180 degrees
+
 \- `0x03` - 270 degrees
 
 ---
@@ -200,6 +228,7 @@ Sets the baud rate on the additional (secondary) serial port.
 | `0x38`      |[2B] **BAUD_RATE** |
 
 **BAUD_RATE:** 2 bytes
+
 \- `0x0001` to `0x03FF` - Baud-rate. Values correspond to `15667200 / desired baud-rate`. Lowest baud-rate is 15300.
 
 ---
@@ -213,13 +242,16 @@ Transmits data over the additional (secondary) serial port.
 | `0x39`      |[nB] **DATA** |
 
 **DATA:** n bytes (up to maximum of 248)
+
 \- The data to transmit over the serial port
 
 ---
 
 #### `0x3A` - Receive data from the additional serial port
 Receives data from the additional (secondary) serial port.
+
 The serial port automatically sends this instruction upon received serial data.
+
 **THERE IS NO TRANSMISSION REQUIRED FOR THIS INSTRUCTION. IT IS RECEIVE ONLY**
 
 **Expected response:**
@@ -228,9 +260,11 @@ The serial port automatically sends this instruction upon received serial data.
 | `0x3A`      |[1B] **LENGTH**; [nB] **DATA** |
 
 **LENGTH:** 1 byte
+
 \- `0x01` to `0xF0` - Amount of bytes recieved.
 
 **DATA:** n bytes (up to a maximum of 240)
+
 \- The bytes received from the serial port.
 
 ---
