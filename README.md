@@ -118,6 +118,7 @@ Write user data to the 32KB of SRAM or 16KB Flash memory.
 \- `0xA5` for the 16KB of Flash.
 
 **ADDRESS:** 2 bytes.
+
 \- `0x0000` to `0x7FFF` for the 32KB of SRAM.
 
 \- `0x0000` to `0x3FFF` for the 16KB of Flash.
@@ -266,5 +267,202 @@ The serial port automatically sends this instruction upon received serial data.
 **DATA:** n bytes (up to a maximum of 240)
 
 \- The bytes received from the serial port.
+
+---
+
+#### `0x01` - Clear screen
+Clears the screen with a specified color.
+
+**Transmit:**
+| Instruction | Data (2 bytes) |
+|-------------|------|
+| `0x01`      |[2B] **COLOR** |
+
+**COLOR:** 2 bytes
+
+\- An **RGB565** color
+
+---
+
+#### `0x02` - Draw point(s)
+Draw a point, or multiple points with one instruction. When drawing points all points can be given (together) a color, dimensions and location.
+
+**Transmit:**
+| Instruction | Data (8 to 248 bytes) |
+|-------------|------|
+| `0x02`      |[2B] **COLOR**; [1B] **SIZE_X**; [1B] **SIZE_Y**; ([2B] **X0**; [2B] **Y0**) ..... ([2B] **Xn**; [2B] **Yn**)|
+
+**COLOR:** 2 bytes
+
+\- An **RGB565** color
+
+**SIZE_X:** 1 byte
+
+\- `0x01` to `0x0F` - The pixel size of the point in the X axis 
+
+**SIZE_Y:** 1 byte
+
+\- `0x01` to `0x0F` - The pixel size of the point in the Y axis 
+
+**Xn:** 2 bytes
+
+\- The X position of the point
+
+**Yn:** 2 bytes
+
+\- The Y position of the point
+
+---
+
+#### `0x03` - Draw line(s)
+Draw a line, or multiple lines with one instruction. When drawing multiple lines, the end of the last is the start of the next. This way you can draw complex line shapes and non-filled polygons. When drawing lines all lines can be given (together) a color.
+
+
+**Transmit:**
+| Instruction | Data (10 to 248 bytes) |
+|-------------|------|
+| `0x03`      |[2B] **COLOR**; ([2B] **X0**; [2B] **Y0**); ([2B] **X1**; [2B] **Y1**); ..... ([2B] **Xn**; [2B] **Yn**)|
+
+**COLOR:** 2 bytes
+
+\- An **RGB565** color
+
+**Xn:** 2 bytes
+
+\- The X position of the line point (starting or ending)
+
+**Yn:** 2 bytes
+
+\- The Y position of the line point (starting or ending)
+
+---
+
+#### `0x05` - Draw rectangle
+Draw a rectangle in one of multiple modes and colors. An XOR mode is present that can be used for menu highlighting.
+
+**Transmit:**
+| Instruction | Data (11 bytes) |
+|-------------|------|
+| `0x05`      |[1B] **MODE** ;[2B] **COLOR** ; [2B] **X0**; [2B] **Y0**; [2B] **X1**; [2B] **Y1**;|
+
+
+**MODE:** 1 byte
+
+\- `0x00` - Draw rectangle outline only
+
+\- `0x01` - Draw rectangle fill only
+
+\- `0x02` - XOR content under the rectangle area. Useful for menu highlighting.
+
+**COLOR:** 2 bytes
+
+\- An **RGB565** color
+
+**X0:** 2 bytes
+
+\- The X position of the top left corner of rectangle
+
+**Y0:** 2 bytes
+
+\- The Y position of the top left corner of rectangle
+
+**X1:** 2 bytes
+
+\- The X position of the bottom right corner of rectangle
+
+**Y1:** 2 bytes
+
+\- The Y position of the bottom right corner of rectangle
+
+---
+
+#### `0x08` - Draw binary bitmap
+Draw a binary bitmap with specific fill colors for `1` and `0`. This can be used to, for example, send a unique text symbol or other relevant 1 bit graphics.
+
+The format of the bitmap graphics depends on it's width. For widths up to 8 it is one byte per line but for widths larger than a byte the lines are made out of as many bytes as needed to contain it. For example a graphic with a width of `18` will require `ceiling(18/8)` = `3 bytes` per line.
+
+Here's an example graphic in binary notation of a smiling face
+```
+00111100
+01111110
+11011011
+11111111
+10111101
+11000011
+01111110
+00111100
+```
+
+**Transmit:**
+| Instruction | Data (11 to 248 bytes) |
+|-------------|------|
+| `0x08`      |[2B] **X**; [2B] **Y**; [2B] **WIDTH**; [2B] **COLOR1**; [2B] **COLOR0**; [nB] **BITMAP_DATA**|
+
+
+**X:** 2 bytes
+
+\- The X position of the bitmap graphic
+
+**Y:** 2 bytes
+
+\- The Y position of the bitmap graphic
+
+**WIDTH:** 2 bytes
+
+\- `0x0001` to `0x01E0` - The width of the graphic in the X direction in pixels. The width dictates the amount of bytes are going to be used by one line of the bitmap. Refer to information above.
+
+**COLOR1:** 2 bytes
+
+\- An **RGB565** color corresponding to `1` in the bitmap
+
+**COLOR2:** 2 bytes
+
+\- An **RGB565** color corresponding to `0` in the bitmap
+
+**BITMAP_DATA:** n bytes (up to a maximum of 238)
+
+\- The bitmap data, format described above.
+
+---
+
+#### `0x09` - Translate specified area of the framebuffer
+Select an area of the framebuffer and translate it. Depending on the mode it either translates and wraps back around or translates, leaving the area behind it colored in a specified color.
+
+**Transmit:**
+| Instruction | Data (13 bytes) |
+|-------------|------|
+| `0x09`      |[1B] **MODE**; [2B] **DISTANCE**; [2B] **COLOR**; [2B] **X0**; [2B] **Y0**; [2B] **X1**; [2B] **Y1**|
+
+**MODE:** 1 byte
+
+\- **bit[** 7 **]**: - type of movement: `0` - wrap around; `1` - translate (parts that are uncovered behind the moved parts filled with color)
+
+\- **bit[** 6..2 **]**: - `0`
+
+\- **bit[** 1..0 **]**: - direction of movement: `00` - left; `01` - right; `10` - up; `11` - down
+
+**DISTANCE:** 2 bytes
+
+\- The distance to translate the selection
+
+**COLOR:** 2 bytes
+
+\- An **RGB565** color with which to fill the background when in translate mode. Does nothing in wrap around mode.
+
+**X0:** 2 bytes
+
+\- The X position of the top left corner of the selection.
+
+**Y0:** 2 bytes
+
+\- The Y position of the top left corner of the selection.
+
+**X1:** 2 bytes
+
+\- The X position of the bottom right corner of the selection.
+
+**Y1:** 2 bytes
+
+\- The Y position of the bottom right corner of the selection.
 
 ---
