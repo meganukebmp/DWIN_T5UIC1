@@ -64,6 +64,7 @@ All device responses will also generate their own CRC.
 Below are all the instructions and their corresponding parameters. Every instruction follow the format described in **Serial Data Frame**. If an instruction has an expected response it is **explicitly listed**. All instructions without an expected response described, do not have any response.
 
 ---
+
 #### `0x00` - Handshake
 Check if the device is online. If it is online it will respond to this command.
 
@@ -78,6 +79,7 @@ Check if the device is online. If it is online it will respond to this command.
 | `0x00`      | `0x4F 0x4B` - "OK"|
 
 ---
+
 #### `0x30` - Backlight brightness
 Set device backlight brightness.
 **Transmit:**
@@ -113,7 +115,9 @@ Writing outside of these ranges can lead to corruption!
 
 **DATA:** n bytes (up to a maximum of 245)
 \- The data to be written to that offset.
+
 ---
+
 #### `0x32` - Read data from memory
 Read user data from the 32KB of SRAM or 16KB Flash memory.
 **Transmit:**
@@ -141,7 +145,9 @@ Reading lengths outside of this range is unsupported!
 
 **DATA:** n bytes (up to a maximum of 240)
 \- The data to be read from that offset.
+
 ---
+
 #### `0x33` - Save image from SRAM to persistent image memory bank
 Save the data currently in the 32KB of SRAM to a specified persistent image memory bank.
 Used to, for example, modify an icon or background image persistently during runtime.
@@ -161,7 +167,9 @@ Used to, for example, modify an icon or background image persistently during run
 **MEMORY_BANK:** 1 byte.
 \- `0x00` to `0x0F` - The 32KB memory bank.
 Writing to memory banks outside of this range is unsupported and can lead to corruption!
+
 ---
+
 #### `0x34` - Change display rotation
 Changes the display rotation immediately. This affects drawing command origin and rotation. This setting is **not** persistent.
 
@@ -180,7 +188,9 @@ Changes the display rotation immediately. This affects drawing command origin an
 \- `0x01` - 90 degrees
 \- `0x02` - 180 degrees
 \- `0x03` - 270 degrees
+
 ---
+
 #### `0x38` - Set additional serial port baud-rate
 Sets the baud rate on the additional (secondary) serial port.
 
@@ -191,7 +201,9 @@ Sets the baud rate on the additional (secondary) serial port.
 
 **BAUD_RATE:** 2 bytes
 \- `0x0001` to `0x03FF` - Baud-rate. Values correspond to `15667200 / desired baud-rate`. Lowest baud-rate is 15300.
+
 ---
+
 #### `0x39` - Transmit data over additional serial port
 Transmits data over the additional (secondary) serial port.
 
@@ -202,7 +214,9 @@ Transmits data over the additional (secondary) serial port.
 
 **DATA:** n bytes (up to maximum of 248)
 \- The data to transmit over the serial port
+
 ---
+
 #### `0x3A` - Receive data from the additional serial port
 Receives data from the additional (secondary) serial port.
 The serial port automatically sends this instruction upon received serial data.
@@ -218,4 +232,5 @@ The serial port automatically sends this instruction upon received serial data.
 
 **DATA:** n bytes (up to a maximum of 240)
 \- The bytes received from the serial port.
+
 ---
