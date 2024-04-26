@@ -63,7 +63,7 @@ The data frame is as such:
 ### 2.5 CRC
 CRC can be enabled in the SD card config file `T5UIC1.CFG`. The CRC is a CRC-16/MODBUS.
 
-If any instruction fails the CRC check the device will the following error:
+If any instruction fails the CRC check the device will return the following error:
 
 | Instruction | Data |
 |-------------|------|
