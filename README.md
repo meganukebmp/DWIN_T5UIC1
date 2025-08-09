@@ -937,13 +937,13 @@ When the device begins a firmware upgrade the screen will blank blue. When the d
 ### 3.1 Description of firmware files
 Not all files in this section are mandatory. One can only flash specific files without having all of them preset, for example only the font library. All files listed below **must** be placed within a folder named `DWIN_SET` in the root of the SD card in order for the device to discover them.
 
-| Filename     | Usage                                                                                |
-|--------------|--------------------------------------------------------------------------------------|
-|T5UIC1\_\*.BIN|Kernel                                                                                |
-|T5UIC1.CFG    |Firmware config                                                                       |
-|0T5UIC1.HZK   |Font library                                                                          |
-|[0-15]\*.JPG  |JPEG file (up to 32KB max) to load into the memory bank denoted by its numeric prefix |
-|[0-15]\*.ICO  |Icon library file to load into the memory bank denoted by its numeric prefix          |
+| Filename     | Usage                                                                                                                                                                 |
+|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|T5UIC1\_\*.BIN|Kernel                                                                                                                                                                 |
+|T5UIC1.CFG    |Firmware config                                                                                                                                                        |
+|0T5UIC1.HZK   |Font library                                                                                                                                                           |
+|[0-15]\*.JPG  |JPEG file (up to 32KB max) to load into the memory bank denoted by its numeric prefix. All images must be the size of the display in resolution. 4:4:4 or 4:1:1 format.|
+|[0-15]\*.ICO  |Icon library file to load into the memory bank denoted by its numeric prefix                                                                                           |
 
 ### 3.2 Config file format (T5UIC1.CFG)
 This file contains the hardware configuration for the DWIN board, for example baud rate and default screen rotation.
